@@ -8,11 +8,10 @@
 // @grant       none
 // ==/UserScript==
 
-//DATA---------------------------------------
 //Adds or updates(if needed) the damageTaken variable on every pokemon in the battle
 function UpdateTypesTable() {
-  for (let i = 0; i < 2; i++) {
-    let p = room.battle.sides[i].active[0];
+  for (var i = 0; i < 2; i++) {
+    var p = room.battle.sides[i].active[0];
     if (p.damageTaken === undefined || p.damageTaken["types"] != p.types) {
       p.damageTaken = getDamageChart(p.types);
     }
@@ -20,13 +19,13 @@ function UpdateTypesTable() {
 }
 //Doesn't take into account items, assumes max IV, abilities or paralized
 function checkFastest() {
-  let myPokemon = room.myPokemon;
-  let enemy = room.battle.sides[1].active[0];
+  var myPokemon = room.myPokemon;
+  var enemy = room.battle.sides[1].active[0];
   if (myPokemon != undefined && enemy!=null) {
     const EnemySpeed = getBoosted(room.tooltips.getTemplateMaxSpeed(enemy, enemy.level),enemy.boosts.spe);
     const EnemySpeedMin = getBoosted(room.tooltips.getTemplateMinSpeed(enemy, enemy.level),enemy.boosts.spe);
-    let OwnSpeed = 0;
-    for (let i = 0; i < myPokemon.length; i++) {
+    var OwnSpeed = 0;
+    for (var i = 0; i < myPokemon.length; i++) {
       OwnSpeed = myPokemon[i].stats['spe'];
       if(myPokemon[i].active && !(myPokemon[i].fainted)){
         OwnSpeed = getBoosted(OwnSpeed,room.battle.sides[0].active[0].boosts.spe);
@@ -45,10 +44,10 @@ function getSpeedTier(a,bmin,bmax){
   return 1;
 }
 function getDamageChart(types) {
-  let t = typechart[types[0]].damageTaken;
+  var t = typechart[types[0]].damageTaken;
   if (types.length > 1) {
-    let n = {};
-    let t2 = typechart[types[1]].damageTaken;
+    var n = {};
+    var t2 = typechart[types[1]].damageTaken;
     for (var key in t) {
         n[key] = t[key]*t2[key];
     }
@@ -65,17 +64,17 @@ function getBoosted(stat,boostLvl){
 //GUI---------------------------------------
 function UpdateMoveButtons() {
   $('.movemenu').children('button').each(function () {
-    let $this = $(this);
-    let move = Tools.getMove($this.data('move'));
+    var $this = $(this);
+    var move = Tools.getMove($this.data('move'));
     if (move.target!= 'self' && move.category !== 'Status' && $this.find('.multiplier').length==0) {
       $type = $this.children('small.type');
-      let bonus = room.battle.sides[1].active[0].damageTaken[$type.text()];
+      var bonus = room.battle.sides[1].active[0].damageTaken[$type.text()];
       $type.after('<small class="multiplier" style="color:' + colormap[bonus] + '">x' + bonus + '</small>');
     }
   });
 }
 function UpdateSwitchButtons() {
-  for (let i = 0; i < room.myPokemon.length; i++) {
+  for (var i = 0; i < room.myPokemon.length; i++) {
     if (i == 0 && room.myPokemon[i].speedTier == undefined) {
       checkFastest();
     }
@@ -94,13 +93,13 @@ function UpdateSwitchButtons() {
 function loadBattle() {
   if(room.battle.gen < 4) return; //Who plays older gens anyway
   //Custom wrap some functions
-  let originalupdate = room.updateControlsForPlayer;
+  var originalupdate = room.updateControlsForPlayer;
   room.updateControlsForPlayer = function () {
     originalupdate.apply(room, []);
     UpdateMoveButtons();
     UpdateSwitchButtons();
   }
-  let originalTurn = room.battle.setTurn;
+  var originalTurn = room.battle.setTurn;
   room.battle.setTurn = function (tn) {
     originalTurn.apply(room.battle, [tn]);
     UpdateTypesTable();
@@ -144,7 +143,7 @@ function loadBattle() {
       if (!basePower) {
         basePowerText = '<p>Base power: ?</p>';
       } else {
-        let modBasePower = basePower * activeTarget.damageTaken[move.type] * ((move.type == pokemon.types[0] || move.type == pokemon.types[1]) ? 1.5 : 1); //stab
+        var modBasePower = basePower * activeTarget.damageTaken[move.type] * ((move.type == pokemon.types[0] || move.type == pokemon.types[1]) ? 1.5 : 1); //stab
         basePowerText = '<p>Base power: ' + basePower + '(' + modBasePower + ')</p>';
       }
     }
@@ -423,8 +422,8 @@ function loadBattle() {
       }
     }
     if (myPokemon && !isActive) {
-      let visibleEnemy = (room.battle.sides[1].active[0]);
-      let eTable;
+      var visibleEnemy = (room.battle.sides[1].active[0]);
+      var eTable;
       if(visibleEnemy){
         eTable =room.battle.sides[1].active[0].damageTaken;
       }
@@ -444,7 +443,7 @@ function loadBattle() {
           }
         }
         if(move.target !== 'self' && move.category!== 'Status' && visibleEnemy){
-          let mult = eTable[move.type];
+          var mult = eTable[move.type];
           text += '&#8226; ' + name +' <span style="color: '+colormap[mult]+'">x'+mult+'</span><br />';
         }else{
           text += '&#8226; ' + name +'<br />';
@@ -452,16 +451,16 @@ function loadBattle() {
       }
       text += '</p>';
     } else if (pokemon.moveTrack && pokemon.moveTrack.length) {
-      let visibleEnemy = (pokemon.side.foe.active[0]);
-      let eTable;
+      var visibleEnemy = (pokemon.side.foe.active[0]);
+      var eTable;
       if(visibleEnemy){
         eTable =pokemon.side.foe.active[0].damageTaken;
       }
       text += '<p class="section">';
       for (var i = 0; i < pokemon.moveTrack.length; i++) {
-        let move = Tools.getMove(pokemon.moveTrack[i][0]);
+        var move = Tools.getMove(pokemon.moveTrack[i][0]);
         if(move.target !== 'self' && move.category!== 'Status' && visibleEnemy){
-          let mult = eTable[move.type];
+          var mult = eTable[move.type];
           text += '&#8226; ' + this.getPPUseText(pokemon.moveTrack[i]) +' <span style="color: '+colormap[mult]+'">x'+
             mult +'</span><br />';
         }else{
@@ -980,5 +979,3 @@ const typechart = {
 //This calls loadIcons multiple times, but we can take the performance hit.
 waitForKeyElements('.teamicons', loadIcons);
 waitForKeyElements('.battle', loadBattle);
-
-unsafeWindow.console.log('Loaded OK');
