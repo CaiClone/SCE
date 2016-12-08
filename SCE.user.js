@@ -159,22 +159,24 @@ function loadBattle() {
     }
     if(myPokemon && !isActive){
       var visibleEnemy= (room.battle.sides[1].active[0]);
-      var eTable;
-      if(visibleEnemy)
-        eTable = geteTable(room.battle.sides[1].active[0]);
-      for(var i = 0;i<myPokemon.moves.length;i++){
-        var move =Tools.getMove(myPokemon.moves[i]);
-        if(move.target !=='self' && move.category!== 'Status' && visibleEnemy){
-          var mult = eTable[move.type];
-          var name = move.name;
-          var re = new RegExp("&#8226; "+name+"(<s.*</span>)*","g");
-          text= text.replace(re,"&#8226; "+name+'<span style="color: '+colormap[mult]+'"> x'+mult+'</span>');
+      if(visibleEnemy){
+        var eTable = geteTable(room.battle.sides[1].active[0]);
+        //Add multiplyer to moves
+        for(var i = 0;i<myPokemon.moves.length;i++){
+          var move =Tools.getMove(myPokemon.moves[i]);
+          if(move.target !=='self' && move.category!== 'Status' && visibleEnemy){
+            var mult = eTable[move.type];
+            var name = move.name;
+            var re = new RegExp("&#8226; "+name+"(<s.*</span>)*","g");
+            text= text.replace(re,"&#8226; "+name+'<span style="color: '+colormap[mult]+'"> x'+mult+'</span>');
+          }
         }
       }
     }else if(!myPokemon){
       var visFriend= (room.battle.sides[0].active[0]);
       var eTable;
       if(visFriend){
+        //Add multiplyer to moves
         eTable = geteTable(visFriend);
         for(var i = 0;i<pokemon.moveTrack.length;i++){
           var move =Tools.getMove(pokemon.moveTrack[i][0]);
@@ -186,14 +188,16 @@ function loadBattle() {
           }
         }
       }
-      //Add base Stats
-      text =text.replace(/<\/p>.*<p class="section">/,
-                   '<p>BaseStats:'+ pokemon.baseStats['atk'] + '&nbsp;Atk /&nbsp;' +
-                                    pokemon.baseStats['def'] + '&nbsp;Def /&nbsp;' +
-                                    pokemon.baseStats['spa'] + '&nbsp;SpA /&nbsp;' + 
-                                    pokemon.baseStats['spd'] + '&nbsp;SpD /&nbsp;'+
-                                    pokemon.baseStats['spe'] + '&nbsp;Spe</p><p class="section">');
     }
+    if(pokemon.baseStats){
+      //Add base Stats
+      text =text.replace(/modifiers\)<\/p>.*?(<p class=|<\/div>)/,
+                         'modifiers)</p><p>BaseStats:'+ pokemon.baseStats['atk'] + '&nbsp;Atk /&nbsp;' +
+                         pokemon.baseStats['def'] + '&nbsp;Def /&nbsp;' +
+                         pokemon.baseStats['spa'] + '&nbsp;SpA /&nbsp;' + 
+                         pokemon.baseStats['spd'] + '&nbsp;SpD /&nbsp;'+
+                         pokemon.baseStats['spe'] + '&nbsp;Spe</p>\$1');
+   }
    return text;
   };
 
