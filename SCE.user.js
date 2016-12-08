@@ -44,6 +44,11 @@ function checkFastest() {
     }
   }
 }
+function geteTable(pokemon){
+  if(!pokemon.damageTaken)
+    UpdateInfo();
+  return pokemon.damageTaken;
+}
 //UTILS---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 //Returns the speed of a compared with b
@@ -84,7 +89,7 @@ function UpdateMoveButtons() {
     var move = Tools.getMove($this.data('move'));
     if (move.target!= 'self' && move.category !== 'Status' && $this.find('.multiplier').length==0) {
       $type = $this.children('small.type');
-      var bonus = room.battle.sides[1].active[0].damageTaken[$type.text()];
+      var bonus = geteTable(room.battle.sides[1].active[0])[$type.text()];
       $type.after('<small class="multiplier" style="color:' + colormap[bonus] + '">x' + bonus + '</small>');
     }
   });
@@ -136,7 +141,7 @@ function loadBattle() {
     var pokemon = this.battle.mySide.active[this.room.choice.choices.length];
     var basePower = this.getMoveBasePower(move, pokemon, activeTarget);
     if(basePower){
-      var modBasePower = basePower * activeTarget.damageTaken[move.type] * ((move.type == pokemon.types[0] || move.type == pokemon.types[1]) ? 1.5 : 1); //stab
+      var modBasePower = basePower * geteTable(activeTarget)[move.type] * ((move.type == pokemon.types[0] || move.type == pokemon.types[1]) ? 1.5 : 1); //stab
       text=text.replace(/<p>Base power: (\d+)<\/p>/,"<p>Base power: \$1("+modBasePower+")</p>");
     }
     return text;
@@ -156,7 +161,7 @@ function loadBattle() {
       var visibleEnemy= (room.battle.sides[1].active[0]);
       var eTable;
       if(visibleEnemy)
-        eTable = room.battle.sides[1].active[0].damageTaken;
+        eTable = geteTable(room.battle.sides[1].active[0]);
       for(var i = 0;i<myPokemon.moves.length;i++){
         var move =Tools.getMove(myPokemon.moves[i]);
         if(move.target !=='self' && move.category!== 'Status' && visibleEnemy){
@@ -169,15 +174,16 @@ function loadBattle() {
     }else if(!myPokemon){
       var visFriend= (room.battle.sides[0].active[0]);
       var eTable;
-      if(visFriend)
-        eTable = room.battle.sides[0].active[0].damageTaken;
-      for(var i = 0;i<pokemon.moveTrack.length;i++){
-        var move =Tools.getMove(pokemon.moveTrack[i][0]);
-        if(move.target !=='self' && move.category!== 'Status' && visFriend){
-          var mult = eTable[move.type];
-          var name = move.name;
-          var re = new RegExp("&#8226; "+name+"(<s.*</span>)*","g");
-          text= text.replace(re,"&#8226; "+name+'<span style="color: '+colormap[mult]+'"> x'+mult+'</span>');
+      if(visFriend){
+        eTable = geteTable(visFriend);
+        for(var i = 0;i<pokemon.moveTrack.length;i++){
+          var move =Tools.getMove(pokemon.moveTrack[i][0]);
+          if(move.target !=='self' && move.category!== 'Status' && visFriend){
+            var mult = eTable[move.type];
+            var name = move.name;
+            var re = new RegExp("&#8226; "+name+"(<s.*</span>)*","g");
+            text= text.replace(re,"&#8226; "+name+'<span style="color: '+colormap[mult]+'"> x'+mult+'</span>');
+          }
         }
       }
       //Add base Stats
