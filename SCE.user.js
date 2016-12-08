@@ -124,7 +124,8 @@ function loadBattle() {
   var originalTurn = room.battle.setTurn;
   room.battle.setTurn = function () {
     var ret = originalTurn.apply(room.battle, arguments);
-    originalupdate.apply(room);
+    if(room.choiceData)
+     originalupdate.apply(room);
     UpdateInfo();
     checkFastest();
     return ret;
