@@ -22,8 +22,9 @@ function UpdateInfo() {
   if(room.myPokemon){
       for(var i=0;i<room.myPokemon.length;i++){
         var myp = room.myPokemon[i];
-        myp.volatiles = [];
-        myp.modStats= getModStats(myp,myp);
+        myp.volatiles = myp.volatiles || [];
+        //i==0 means we are dealing with the active pokemon, so we need to retrieve the boosts from the battle
+        myp.modStats= getModStats((i>0)?myp:room.battle.mySide.active[0],myp);
       }
   }
 }
@@ -38,6 +39,8 @@ function checkFastest() {
     for (var i = 0; i < myPokemon.length; i++) {
       OwnSpeed = myPokemon[i].stats.spe;
       if(myPokemon[i].active && !(myPokemon[i].fainted)){
+        if(!myPokemon[i].modStats)
+          UpdateInfo();
         OwnSpeed = myPokemon[i].modStats.spe;
       }
       room.myPokemon[i].speedTier = getSpeedTier(OwnSpeed,EnemySpeedMin,EnemySpeed);
