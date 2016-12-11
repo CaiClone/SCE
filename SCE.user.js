@@ -3,7 +3,7 @@
 // @description This script adds information to pokemon showdown single battles.
 // @namespace   https://github.com/caiclone
 // @include   http://play.pokemonshowdown.com/*
-// @version     1.2.1
+// @version     1.2.2
 // @require  https://gist.github.com/raw/2625891/waitForKeyElements.js
 // @grant       none
 // ==/UserScript==
