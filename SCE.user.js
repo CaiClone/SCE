@@ -151,6 +151,7 @@ function loadBattle() {
   var originalPokeTooltip = BattleTooltips.prototype.showPokemonTooltip;
   BattleTooltips.prototype.showPokemonTooltip = function () {
     var text = originalPokeTooltip.apply(this, arguments);    
+    console.log("DOUBLE");
     pokemon = arguments[0];
     myPokemon = arguments[1] ;
     isActive = arguments[2];
@@ -165,13 +166,14 @@ function loadBattle() {
       if(visibleEnemy && visFriend){
         var eTable = geteTable(room.battle.sides[1].active[0]);
         //Add multiplyer to moves
+        console.log(text);
         for(var i = 0;i<myPokemon.moves.length;i++){
           var move =Tools.getMove(myPokemon.moves[i]);
           if(move.target !=='self' && move.category!== 'Status' && visibleEnemy){
             var mult = eTable[move.type];
             var name = move.name;
-            var re = new RegExp("&#8226; "+name+"(<s.*</span>)*","g");
-            text= text.replace(re,"&#8226; "+name+'<span style="color: '+colormap[mult]+'"> x'+mult+'</span>');
+            var re = new RegExp("&#8226; "+name+".*?<br","g");
+            text= text.replace(re,"&#8226; "+name+'<span style="color: '+colormap[mult]+'"> x'+mult+'</span><br');
           }
         }
       }
@@ -185,9 +187,9 @@ function loadBattle() {
           if(move.target !=='self' && move.category!== 'Status' && visFriend){
             var mult = eTable[move.type];
             var name = move.name;
-            var re = new RegExp("&#8226; "+name+"(<s.*</span>)*","g");
-            text= text.replace(re,"&#8226; "+name+'<span style="color: '+colormap[mult]+'"> x'+mult+'</span>');
-          }
+            var re = new RegExp("&#8226; "+name+".*?<br","g");
+            text= text.replace(re,"&#8226; "+name+'<span style="color: '+colormap[mult]+'"> x'+mult+'</span><br');
+          }1
         }
       }
     }
