@@ -20,12 +20,10 @@ function UpdateInfo() {
     p.maxStats = getModStats(p,room.tooltips.getTemplateMaxSpeed(p,p.level));
   }
   if(room.myPokemon){
-      for(var i=0;i<room.myPokemon.length;i++){
-        var myp = room.myPokemon[i];
-        myp.volatiles = myp.volatiles || [];
-        //i==0 means we are dealing with the active pokemon, so we need to retrieve the boosts from the battle
-        myp.modStats= getModStats((i>0)?myp:room.battle.mySide.active[0],myp);
-      }
+    //Account for boosts in the active pokemon
+    var myp = room.myPokemon[0];
+    myp.volatiles = myp.volatiles || [];
+    myp.modStats=getModStats(room.battle.mySide.active[0],myp);
   }
 }
 //assumes enemy max IV
@@ -157,13 +155,14 @@ function loadBattle() {
     myPokemon = arguments[1] ;
     isActive = arguments[2];
     var spds = /(\d+) to (\d+) Spe/.exec(text);
+    var visibleEnemy= (room.battle.sides[1].active[0]);
+    var visFriend= (room.battle.sides[0].active[0]);
     if(spds!=null){
       if(pokemon.minStats && spds[1]!= pokemon.minStats.spe)
         text= text.replace(/(\d+) to (\d+) Spe/, "\$1("+pokemon.minStats.spe+") to \$2("+pokemon.maxStats.spe+") Spe");
     }
     if(myPokemon && !isActive){
-      var visibleEnemy= (room.battle.sides[1].active[0]);
-      if(visibleEnemy){
+      if(visibleEnemy && visFriend){
         var eTable = geteTable(room.battle.sides[1].active[0]);
         //Add multiplyer to moves
         for(var i = 0;i<myPokemon.moves.length;i++){
@@ -177,9 +176,8 @@ function loadBattle() {
         }
       }
     }else if(!myPokemon){
-      var visFriend= (room.battle.sides[0].active[0]);
       var eTable;
-      if(visFriend){
+      if(visFriend && visibleEnemy){
         //Add multiplyer to moves
         eTable = geteTable(visFriend);
         for(var i = 0;i<pokemon.moveTrack.length;i++){
