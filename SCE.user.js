@@ -13,11 +13,14 @@
 function UpdateInfo() {
   for (var i = 0; i < 2; i++) {
     var p = room.battle.sides[i].active[0];
-    if (p.damageTaken === undefined || p.damageTaken.types != p.types) {
-      p.damageTaken = getDamageChart(p.types);
+    for (var j= 0; j<room.battle.sides[i].active.length){
+      var p= room.battle.sides[i].active[j];
+      if (p.damageTaken === undefined || p.damageTaken.types != p.types) {
+        p.damageTaken = getDamageChart(p.types);
+      }
+      p.minStats = getModStats(p,room.tooltips.getTemplateMinSpeed(p,p.level));
+      p.maxStats = getModStats(p,room.tooltips.getTemplateMaxSpeed(p,p.level));
     }
-    p.minStats = getModStats(p,room.tooltips.getTemplateMinSpeed(p,p.level));
-    p.maxStats = getModStats(p,room.tooltips.getTemplateMaxSpeed(p,p.level));
   }
   if(room.myPokemon){
     //Account for boosts in the active pokemon
@@ -39,7 +42,8 @@ function checkFastest() {
       if(myPokemon[i].active && !(myPokemon[i].fainted)){
         if(!myPokemon[i].modStats)
           UpdateInfo();
-        OwnSpeed = myPokemon[i].modStats.spe;
+        if(myPokemon[i].modStats)
+          OwnSpeed = myPokemon[i].modStats.spe;
       }
       room.myPokemon[i].speedTier = getSpeedTier(OwnSpeed,EnemySpeedMin,EnemySpeed);
     }
@@ -90,8 +94,10 @@ function UpdateMoveButtons() {
     var move = Tools.getMove($this.data('move'));
     if (move.target!= 'self' && move.category !== 'Status' && $this.find('.multiplier').length==0) {
       $type = $this.children('small.type');
-      var bonus = geteTable(room.battle.sides[1].active[0])[$type.text()];
-      $type.after('<small class="multiplier" style="color:' + colormap[bonus] + '">x' + bonus + '</small>');
+      if(room.battle.sides[1].active[0]){
+        var bonus = geteTable(room.battle.sides[1].active[0])[$type.text()];
+        $type.after('<small class="multiplier" style="color:' + colormap[bonus] + '">x' + bonus + '</small>');
+      }
     }
   });
 }
@@ -151,7 +157,6 @@ function loadBattle() {
   var originalPokeTooltip = BattleTooltips.prototype.showPokemonTooltip;
   BattleTooltips.prototype.showPokemonTooltip = function () {
     var text = originalPokeTooltip.apply(this, arguments);    
-    console.log("DOUBLE");
     pokemon = arguments[0];
     myPokemon = arguments[1] ;
     isActive = arguments[2];
