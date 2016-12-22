@@ -163,8 +163,8 @@ function loadBattle() {
     myPokemon = arguments[1] ;
     isActive = arguments[2];
     var spds = /(\d+) to (\d+) Spe/.exec(text);
-    var visibleEnemy= (room.battle.sides[1].active[0]);
-    var visFriend= (room.battle.sides[0].active[0]);
+    var visibleEnemy= room.battle.sides[1].active;
+    var visFriend= room.battle.sides[0].active[0];
     if(spds!=null){
       if(pokemon.minStats && spds[1]!= pokemon.minStats.spe)
         text= text.replace(/(\d+) to (\d+) Spe/, "\$1("+pokemon.minStats.spe+") to \$2("+pokemon.maxStats.spe+") Spe");
@@ -172,15 +172,17 @@ function loadBattle() {
     var eTable;
     if(myPokemon && !isActive){
       if(visibleEnemy && visFriend){
-        eTable = geteTable(room.battle.sides[1].active[0]);
-        //Add multiplyer to moves
         for(var i = 0;i<myPokemon.moves.length;i++){
           var move =Tools.getMove(myPokemon.moves[i]);
           if(move.target !=='self' && move.category!== 'Status' && visibleEnemy){
-            var mult = eTable[move.type];
+            var mult = []
+            for(var enemy of visibleEnemy){
+              var bonus = geteTable(enemy)[move.type];
+              mult.push(('<span style="color: '+colormap[bonus]+'"> x'+bonus+'</span>'));
+            }
             var name = move.name;
             var re = new RegExp("&#8226; "+name+".*?<br","g");
-            text= text.replace(re,"&#8226; "+name+'<span style="color: '+colormap[mult]+'"> x'+mult+'</span><br');
+            text= text.replace(re,"&#8226; "+name+mult+'<br');
           }
         }
       }
