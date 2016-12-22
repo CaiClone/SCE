@@ -12,8 +12,7 @@
 //Also the modified stats for every pokemon
 function UpdateInfo() {
   for (var i = 0; i < 2; i++) {
-    var p = room.battle.sides[i].active[0];
-    for (var j= 0; j<room.battle.sides[i].active.length){
+    for (var j= 0; j<room.battle.sides[i].active.length;j++){
       var p= room.battle.sides[i].active[j];
       if (p.damageTaken === undefined || p.damageTaken.types != p.types) {
         p.damageTaken = getDamageChart(p.types);
@@ -33,9 +32,9 @@ function UpdateInfo() {
 function checkFastest() {
   var myPokemon = room.myPokemon;
   var enemy = room.battle.sides[1].active[0];
-  if (myPokemon != undefined && enemy!=null) {
-    const EnemySpeed = enemy.maxStats.spe;
-    const EnemySpeedMin = enemy.minStats.spe;
+  if (myPokemon !== undefined && enemy!==null) {
+    var EnemySpeed = enemy.maxStats.spe;
+    var EnemySpeedMin = enemy.minStats.spe;
     var OwnSpeed = 0;
     for (var i = 0; i < myPokemon.length; i++) {
       OwnSpeed = myPokemon[i].stats.spe;
@@ -94,9 +93,12 @@ function UpdateMoveButtons() {
     var move = Tools.getMove($this.data('move'));
     if (move.target!= 'self' && move.category !== 'Status' && $this.find('.multiplier').length==0) {
       $type = $this.children('small.type');
-      if(room.battle.sides[1].active[0]){
-        var bonus = geteTable(room.battle.sides[1].active[0])[$type.text()];
-        $type.after('<small class="multiplier" style="color:' + colormap[bonus] + '">x' + bonus + '</small>');
+      var bonus = [];
+      for(var active of room.battle.sides[1].active){
+        bonus.push(geteTable(active)[$type.text()]);
+      }
+      for(var bon of bonus){
+        $type.after('<small class="multiplier" style="color:' + colormap[bon] + '">x' + bon + '</small> ');
       }
     }
   });
@@ -167,11 +169,11 @@ function loadBattle() {
       if(pokemon.minStats && spds[1]!= pokemon.minStats.spe)
         text= text.replace(/(\d+) to (\d+) Spe/, "\$1("+pokemon.minStats.spe+") to \$2("+pokemon.maxStats.spe+") Spe");
     }
+    var eTable;
     if(myPokemon && !isActive){
       if(visibleEnemy && visFriend){
-        var eTable = geteTable(room.battle.sides[1].active[0]);
+        eTable = geteTable(room.battle.sides[1].active[0]);
         //Add multiplyer to moves
-        console.log(text);
         for(var i = 0;i<myPokemon.moves.length;i++){
           var move =Tools.getMove(myPokemon.moves[i]);
           if(move.target !=='self' && move.category!== 'Status' && visibleEnemy){
@@ -183,7 +185,6 @@ function loadBattle() {
         }
       }
     }else if(!myPokemon){
-      var eTable;
       if(visFriend && visibleEnemy){
         //Add multiplyer to moves
         eTable = geteTable(visFriend);
@@ -194,7 +195,7 @@ function loadBattle() {
             var name = move.name;
             var re = new RegExp("&#8226; "+name+".*?<br","g");
             text= text.replace(re,"&#8226; "+name+'<span style="color: '+colormap[mult]+'"> x'+mult+'</span><br');
-          }1
+          }
         }
       }
     }
