@@ -182,7 +182,7 @@ function loadBattle() {
             }
             var name = move.name;
             var re = new RegExp("&#8226; "+name+".*?<br","g");
-            text= text.replace(re,"&#8226; "+name+mult+'<br');
+            text= text.replace(re,"&#8226; "+name+mult.reverse()+'<br');
           }
         }
       }
