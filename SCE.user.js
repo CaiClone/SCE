@@ -14,11 +14,13 @@ function UpdateInfo() {
   for (var i = 0; i < 2; i++) {
     for (var j= 0; j<room.battle.sides[i].active.length;j++){
       var p= room.battle.sides[i].active[j];
-      if (p.damageTaken === undefined || p.damageTaken.types != p.types) {
-        p.damageTaken = getDamageChart(p.types);
+      if(p){
+        if (p.damageTaken === undefined || p.damageTaken.types != p.types) {
+          p.damageTaken = getDamageChart(p.types);
+        }
+        p.minStats = getModStats(p,room.tooltips.getTemplateMinSpeed(p,p.level));
+        p.maxStats = getModStats(p,room.tooltips.getTemplateMaxSpeed(p,p.level));
       }
-      p.minStats = getModStats(p,room.tooltips.getTemplateMinSpeed(p,p.level));
-      p.maxStats = getModStats(p,room.tooltips.getTemplateMaxSpeed(p,p.level));
     }
   }
   if(room.myPokemon){
@@ -95,7 +97,8 @@ function UpdateMoveButtons() {
       $type = $this.children('small.type');
       var bonus = [];
       for(var active of room.battle.sides[1].active){
-        bonus.push(geteTable(active)[$type.text()]);
+        if(active)
+         bonus.push(geteTable(active)[$type.text()]);
       }
       for(var bon of bonus){
         $type.after('<small class="multiplier" style="color:' + colormap[bon] + '">x' + bon + '</small> ');
@@ -151,10 +154,12 @@ function loadBattle() {
     
     var modBasePower = [];
       for(var enemy of visEnemies){
-    		var basePower = parseInt(this.getMoveBasePower(move, pokemon, enemy));
-    		if(basePower){
-        	modBasePower.push('('+(basePower * geteTable(enemy)[move.type] * ((move.type == pokemon.types[0] || move.type == pokemon.types[1]) ? 1.5 : 1))+')'); //stab
-      	}
+        if(enemy){
+         var basePower = parseInt(this.getMoveBasePower(move, pokemon, enemy));
+          if(basePower){
+            modBasePower.push('('+(basePower * geteTable(enemy)[move.type] * ((move.type == pokemon.types[0] || move.type == pokemon.types[1]) ? 1.5 : 1))+')'); //stab
+          } 
+        }
       }
       text=text.replace(/<p>Base power: (\d+)\s?(\(\D*\))?\s?<\/p>/,"<p>Base power: \$1 "+modBasePower.reverse()+" \$2</p>");
     
@@ -174,14 +179,16 @@ function loadBattle() {
         text= text.replace(/(\d+) to (\d+) Spe/, "\$1("+pokemon.minStats.spe+") to \$2("+pokemon.maxStats.spe+") Spe");
     }
     if(myPokemon && !isActive){
-      if(visEnemy && visFriend){
+      if(visFriend){
         for(var i = 0;i<myPokemon.moves.length;i++){
           var move =Tools.getMove(myPokemon.moves[i]);
           if(move.target !=='self' && move.category!== 'Status' && visEnemy){
             var mult = [];
             for(var enemy of visEnemy){
-              var bonus = geteTable(enemy)[move.type];
-              mult.push(('<span style="color: '+colormap[bonus]+'"> x'+bonus+'</span>'));
+              if(enemy){
+                var bonus = geteTable(enemy)[move.type];
+                mult.push(('<span style="color: '+colormap[bonus]+'"> x'+bonus+'</span>'));
+              }
             }
             var name = move.name;
             var re = new RegExp("&#8226; "+name+".*?<br","g");
@@ -190,14 +197,16 @@ function loadBattle() {
         }
       }
     }else if(!myPokemon){
-      if(visFriend && visEnemy){
+      if(visFriend){
         for(var i = 0;i<pokemon.moveTrack.length;i++){
           var move =Tools.getMove(pokemon.moveTrack[i][0]);
           if(move.target !=='self' && move.category!== 'Status' && visFriend){
             var mult = [];
             for(var friend of visFriend){
-              var bonus = geteTable(friend)[move.type];
-              mult.push(('<span style="color: '+colormap[bonus]+'"> x'+bonus+'</span>'));
+              if(friend){
+                var bonus = geteTable(friend)[move.type];
+                mult.push(('<span style="color: '+colormap[bonus]+'"> x'+bonus+'</span>'));
+              }
             }
             var name = move.name;
             var re = new RegExp("&#8226; "+name+".*?<br","g");
