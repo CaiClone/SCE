@@ -299,7 +299,7 @@ function loadBattle() {
   room.battle.message('Custom Script Loaded');
 }
 function loadIcons(){
-  $(".rightbar .pokemonicon").hover(function(){ //Enemy team icons
+  $(".rightbar .picon").hover(function(){ //Enemy team icons
     if(this.title!== "Not revealed"){
       //plus 3 * parent because they are split in two divs of 3
       BattleTooltips.showTooltipFor(room.id,$(this).index()+(($(this).parent().index()-2) *3),'enemysidepokemon', this, false);
