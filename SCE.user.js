@@ -146,13 +146,16 @@ function loadBattle() {
   BattleTooltips.prototype.showMoveTooltip = function () {
     var text = originalMoveTooltip.apply(this, arguments);
     var move = arguments[0];
-    var yourActive = this.battle.yourSide.active;
-    var activeTarget = yourActive[0] || yourActive[1] || yourActive[2];
+    var visEnemies = this.battle.yourSide.active;
     var pokemon = this.battle.mySide.active[this.room.choice.choices.length];
-    var basePower = this.getMoveBasePower(move, pokemon, activeTarget);
+    
+    var modBasePower = [];
+    var basePower = this.getMoveBasePower(move, pokemon, enemy);
     if(basePower){
-      var modBasePower = basePower * geteTable(activeTarget)[move.type] * ((move.type == pokemon.types[0] || move.type == pokemon.types[1]) ? 1.5 : 1); //stab
-      text=text.replace(/<p>Base power: (\d+)<\/p>/,"<p>Base power: \$1("+modBasePower+")</p>");
+      for(var enemy of visEnemies){
+        modBasePower.push('('+(basePower * geteTable(enemy)[move.type] * ((move.type == pokemon.types[0] || move.type == pokemon.types[1]) ? 1.5 : 1))+')'); //stab
+      }
+      text=text.replace(/<p>Base power: (\d+)<\/p>/,"<p>Base power: \$1"+modBasePower.reverse()+"</p>");
     }
     return text;
   };
