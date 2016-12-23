@@ -32,7 +32,7 @@ function UpdateInfo() {
 function checkFastest() {
   var myPokemon = room.myPokemon;
   var enemy = room.battle.sides[1].active[0];
-  if (myPokemon !== undefined && enemy!==null) {
+  if (myPokemon && enemy) {
     var EnemySpeed = enemy.maxStats.spe;
     var EnemySpeedMin = enemy.minStats.spe;
     var OwnSpeed = 0;
@@ -62,15 +62,15 @@ function getSpeedTier(a,bmin,bmax){
   if(a<bmin) return 0;
   return 1;
 }
-function getDamageChart(types) {
-  var t = typechart[types[0]].damageTaken;
-  if (types.length > 1) {
+function getDamageChart(ptypes) {
+  var t = typechart[ptypes[0]].damageTaken;
+  if (ptypes.length > 1) {
     var n = {};
-    var t2 = typechart[types[1]].damageTaken;
+    var t2 = typechart[ptypes[1]].damageTaken;
     for (var key in t) {
         n[key] = t[key]*t2[key];
     }
-    n["types"] = types;
+    n.types = ptypes;
    return n;
   }
   return t;
@@ -88,10 +88,10 @@ function getModStats(pokemon,myPokemon){
 }
 //GUI---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function UpdateMoveButtons() {
-  $('.movemenu').children('button').each(function () {
+  $('.movemenu button').each(function () {
     var $this = $(this);
     var move = Tools.getMove($this.data('move'));
-    if (move.target!= 'self' && move.category !== 'Status' && $this.find('.multiplier').length==0) {
+    if (move.target!= 'self' && move.category !== 'Status' && $this.find('.multiplier').length===0) {
       $type = $this.children('small.type');
       var bonus = [];
       for(var active of room.battle.sides[1].active){
@@ -105,7 +105,7 @@ function UpdateMoveButtons() {
 }
 function UpdateSwitchButtons() {
   for (var i = 0; i < room.myPokemon.length; i++) {
-    if (i == 0 && room.myPokemon[i].speedTier == undefined) {
+    if (i === 0 && room.myPokemon[i].speedTier === undefined) {
       checkFastest();
     }
     if (!room.myPokemon[i].active) { //not active
@@ -150,13 +150,14 @@ function loadBattle() {
     var pokemon = this.battle.mySide.active[this.room.choice.choices.length];
     
     var modBasePower = [];
-    var basePower = parseInt(this.getMoveBasePower(move, pokemon, enemy));
-    if(basePower){
       for(var enemy of visEnemies){
-        modBasePower.push('('+(basePower * geteTable(enemy)[move.type] * ((move.type == pokemon.types[0] || move.type == pokemon.types[1]) ? 1.5 : 1))+')'); //stab
+    		var basePower = parseInt(this.getMoveBasePower(move, pokemon, enemy));
+    		if(basePower){
+        	modBasePower.push('('+(basePower * geteTable(enemy)[move.type] * ((move.type == pokemon.types[0] || move.type == pokemon.types[1]) ? 1.5 : 1))+')'); //stab
+      	}
       }
       text=text.replace(/<p>Base power: (\d+)\s?(\(\D*\))?\s?<\/p>/,"<p>Base power: \$1 "+modBasePower.reverse()+" \$2</p>");
-    }
+    
     return text;
   };
   var originalPokeTooltip = BattleTooltips.prototype.showPokemonTooltip;
@@ -168,17 +169,16 @@ function loadBattle() {
     var spds = /(\d+) to (\d+) Spe/.exec(text);
     var visEnemy= room.battle.sides[1].active;
     var visFriend= room.battle.sides[0].active;
-    if(spds!=null){
+    if(spds){
       if(pokemon.minStats && spds[1]!= pokemon.minStats.spe)
         text= text.replace(/(\d+) to (\d+) Spe/, "\$1("+pokemon.minStats.spe+") to \$2("+pokemon.maxStats.spe+") Spe");
     }
-    var eTable;
     if(myPokemon && !isActive){
       if(visEnemy && visFriend){
         for(var i = 0;i<myPokemon.moves.length;i++){
           var move =Tools.getMove(myPokemon.moves[i]);
           if(move.target !=='self' && move.category!== 'Status' && visEnemy){
-            var mult = []
+            var mult = [];
             for(var enemy of visEnemy){
               var bonus = geteTable(enemy)[move.type];
               mult.push(('<span style="color: '+colormap[bonus]+'"> x'+bonus+'</span>'));
@@ -209,11 +209,11 @@ function loadBattle() {
     if(pokemon.baseStats){
       //Add base Stats
       text =text.replace(/modifiers\)<\/p>.*?(<p class=|<\/div>)/,
-                         'modifiers)</p><p>BaseStats:'+ pokemon.baseStats['atk'] + '&nbsp;Atk /&nbsp;' +
-                         pokemon.baseStats['def'] + '&nbsp;Def /&nbsp;' +
-                         pokemon.baseStats['spa'] + '&nbsp;SpA /&nbsp;' + 
-                         pokemon.baseStats['spd'] + '&nbsp;SpD /&nbsp;'+
-                         pokemon.baseStats['spe'] + '&nbsp;Spe</p>\$1');
+                         'modifiers)</p><p>BaseStats:'+ pokemon.baseStats.atk + '&nbsp;Atk /&nbsp;' +
+                         pokemon.baseStats.def + '&nbsp;Def /&nbsp;' +
+                         pokemon.baseStats.spa + '&nbsp;SpA /&nbsp;' + 
+                         pokemon.baseStats.spd + '&nbsp;SpD /&nbsp;'+
+                         pokemon.baseStats.spe + '&nbsp;Spe</p>\$1');
    }
    return text;
   };
