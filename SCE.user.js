@@ -150,12 +150,12 @@ function loadBattle() {
     var pokemon = this.battle.mySide.active[this.room.choice.choices.length];
     
     var modBasePower = [];
-    var basePower = this.getMoveBasePower(move, pokemon, enemy);
+    var basePower = parseInt(this.getMoveBasePower(move, pokemon, enemy));
     if(basePower){
       for(var enemy of visEnemies){
         modBasePower.push('('+(basePower * geteTable(enemy)[move.type] * ((move.type == pokemon.types[0] || move.type == pokemon.types[1]) ? 1.5 : 1))+')'); //stab
       }
-      text=text.replace(/<p>Base power: (\d+)<\/p>/,"<p>Base power: \$1"+modBasePower.reverse()+"</p>");
+      text=text.replace(/<p>Base power: (\d+)\s?(\(\D*\))?\s?<\/p>/,"<p>Base power: \$1 "+modBasePower.reverse()+" \$2</p>");
     }
     return text;
   };
